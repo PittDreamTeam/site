@@ -1,0 +1,32 @@
+<!doctype html>
+<title>{% block title %}Welcome{% endblock %} | Park Pal</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='overrides.css') }}" >
+
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4"> <a href="{{ url_for('default')}}" id="home"><h2>Park Pal&#8482;</h2></a> </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="navigation">
+  </div>
+  {% with flashes = get_flashed_messages() %}
+    {% if flashes %}
+      <ul class="flashes">
+      {% for message in flashes %}
+        <div class="alert alert-info"> {{ message }}</div>
+      {% endfor %}
+      </ul>
+
+    {% endif %}
+  {% endwith %}
+
+  <div class="body">
+  {% block body %}{% endblock %}
+  </div>
+
+</div>
