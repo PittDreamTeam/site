@@ -104,5 +104,5 @@ def initdb_command():
 
 @app.route("/")
 def default():
-    categories = Category.query.all();
+    categories = Category.query.all()
     return render_template("default.html", categories=categories)
