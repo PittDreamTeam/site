@@ -64,7 +64,7 @@ function newCategory() {
     var json = JSON.stringify(cat);
 
     httpRequest.onreadystatechange = function() { addCategory(httpRequest) };
-    httpRequest.open("POST", "/cats");
+    httpRequest.open("POST", "/spots");
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(json);
     document.getElementById('catname').value = "";

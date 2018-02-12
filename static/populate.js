@@ -10,13 +10,13 @@ function populatePage() {
         alert('Cannot create an XMLHTTP instance');
         return false;
     }
-    httpRequest.onreadystatechange = function() { populateCategories(httpRequest) };
+    httpRequest.onreadystatechange = function() { populate(httpRequest) };
     httpRequest.open("GET", "/cats");
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send();
 }
 
-function populateCategories(httpRequest) {
+function populate(httpRequest) {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
             console.log("[GET] /cats: \n\n" + httpRequest.responseText);
@@ -31,48 +31,7 @@ function populateCategories(httpRequest) {
 }
 
 function loadCategory(row) {
-    var table = document.getElementById("categories");
-    var newRow  = table.insertRow();
-    name = row['name'];
-    newRow.id = name
-    var newCell, newText;
-    for (var key in row) {
-        newCell  = newRow.insertCell();
-        newCell.id = name + "-" + key;
-        newText  = document.createTextNode(row[key]);
-        newCell.appendChild(newText);
-    }
-    var cells = document.getElementById(name).cells;
-    var remaining, budget;
-    for (var i = 0; i < cells.length; i++) {
-        if (cells[i].id === name + "-" + "remaining") {
-            remaining = cells[i].innerHTML;
-        }
-    }
-
-    newCell  = newRow.insertCell();
-    newCell.id = name + "-" + "overbudget";
-    if (remaining >= 0) {
-        newText = document.createTextNode("No");
-    } else {
-        newText = document.createTextNode("Yes");
-    }
-    newCell.appendChild(newText);
-
-
-    deletecell = newRow.insertCell();
-    button = document.createElement('button');
-    button.innerHTML = "Delete";
-    button.addEventListener("click", function() {
-        name = row['name'];
-        deleteCategory(name);
-    });
-    deletecell.appendChild(button);
-    var combobox = document.getElementById('purcat');
-    var opt = document.createElement("option");
-    opt.id = "opt" + name;
-    opt.innerHTML = name;
-    combobox.appendChild(opt);
+    var newText = document.createTextNode("HEY THERE, POSTER");
 }
 
 function deleteCategory(name) {
