@@ -1,7 +1,6 @@
 
 function setup() {
     populatePage();
-    getPurchases();
 }
 
 function populatePage() {
@@ -11,7 +10,7 @@ function populatePage() {
         return false;
     }
     httpRequest.onreadystatechange = function() { populate(httpRequest) };
-    httpRequest.open("GET", "/cats");
+    httpRequest.open("GET", "/count");
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send();
 }
@@ -19,7 +18,7 @@ function populatePage() {
 function populate(httpRequest) {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
-            console.log("[GET] /cats: \n\n" + httpRequest.responseText);
+            console.log("[GET] /count: \n\n" + httpRequest.responseText);
             var json = JSON.parse(httpRequest.responseText);
             for (var key in json) {
                 loadCategory(json[key]);
@@ -31,7 +30,8 @@ function populate(httpRequest) {
 }
 
 function loadCategory(row) {
-    var newText = document.createTextNode("HEY THERE, POSTER");
+    var newText = document.createTextNode("GET!");
+    document.body.appendChild(newText);
 }
 
 function deleteCategory(name) {
@@ -42,7 +42,7 @@ function deleteCategory(name) {
     }
     var json = JSON.stringify(name);
     httpRequest.onreadystatechange = function() { removeCategory(httpRequest, name) };
-    httpRequest.open("DELETE", "/cats");
+    httpRequest.open("DELETE", "/count");
     httpRequest.setRequestHeader('Content-Type', 'application/JSON');
     httpRequest.send(json);
 }
@@ -57,24 +57,6 @@ function removeCategory(httpRequest, name) {
             alert("There was a problem with the delete request.");
         }
     }
-}
-
-function getPurchases() {
-    var httpRequest = new XMLHttpRequest();
-    if (!httpRequest) {
-        alert('Cannot create an XMLHTTP instance');
-        return false;
-    }
-    httpRequest.onreadystatechange = function() {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-            if (httpRequest.status === 200) {
-                console.log("[GET] /purchases: \n\n" + httpRequest.responseText);
-            }
-        }
-    };
-    httpRequest.open("GET", "/purchases");
-    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    httpRequest.send();
 }
 
 window.addEventListener("load", setup, true);

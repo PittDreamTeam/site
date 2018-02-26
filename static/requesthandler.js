@@ -1,8 +1,8 @@
 
 
 function setup() {
-    document.getElementById("addcat").addEventListener("click", newCategory, true);
-    document.getElementById("addpurchase").addEventListener("click", newPurchase, true);
+    // document.getElementById("addcat").addEventListener("click", newCategory, true);
+    // document.getElementById("addpurchase").addEventListener("click", newPurchase, true);
 }
 
 function newPurchase() {
