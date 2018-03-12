@@ -4,24 +4,16 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class Category(db.Model):
+class Spots(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(60), nullable = False)
-    budget = db.Column(db.Integer, nullable = False)
     remaining = db.Column(db.Integer, nullable = False)
 
-    def __init__(self, name, budget):
-        self.name = name
-        self.budget = budget
-        self.remaining = budget
+    def __init__(self, remaining):
+        self.remaining = remaining
 
-class Purchase(db.Model):
+class Count(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(60), nullable = False)
-    amount = db.Column(db.Integer, nullable = False)
-    category = db.Column(db.String(60), nullable = False)
+    somenumber = db.Column(db.Integer, nullable = False)
 
-    def __init__(self, name, amount, category):
-        self.name = name
-        self.amount = amount
-        self.category = category
+    def __init__(self, somenumber):
+        self.somenumber = somenumber

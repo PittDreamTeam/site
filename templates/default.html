@@ -1,5 +1,6 @@
-<script type="text/javascript" src="{{ url_for('static', filename='populate.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='requesthandler.js') }}"></script>
+<!-- <script type="text/javascript" src="{{ url_for('static', filename='populate.js') }}"></script> -->
+<!-- <script type="text/javascript" src="{{ url_for('static', filename='requesthandler.js') }}"></script> -->
+<script type="text/javascript" src="{{ url_for('static', filename='request.js') }}"></script>
 
 {% extends "layout.html" %}
 {% block title %}Park Pal{% endblock %}
@@ -13,6 +14,12 @@
   <div>
 
     <h4> ( Please excuse our dust, we're renovating 🙂 ) </h4>
+
+    <form action="index" method="post">
+      <label>Spots:<input type="number" id="name" value="" /></label>
+      <button type="button" id="btn-post" onclick="do_ajax();">Click</button>
+      <div id="result"></div>
+    </form>
 
   </div>
 </div>

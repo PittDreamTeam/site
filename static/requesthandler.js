@@ -1,8 +1,8 @@
 
 
 function setup() {
-    document.getElementById("addcat").addEventListener("click", newCategory, true);
-    document.getElementById("addpurchase").addEventListener("click", newPurchase, true);
+    // document.getElementById("addcat").addEventListener("click", newCategory, true);
+    // document.getElementById("addpurchase").addEventListener("click", newPurchase, true);
 }
 
 function newPurchase() {
@@ -64,7 +64,7 @@ function newCategory() {
     var json = JSON.stringify(cat);
 
     httpRequest.onreadystatechange = function() { addCategory(httpRequest) };
-    httpRequest.open("POST", "/cats");
+    httpRequest.open("POST", "/spots");
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(json);
     document.getElementById('catname').value = "";
