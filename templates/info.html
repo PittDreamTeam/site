@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}<!DOCTYPE html>
+
+
+<div class="container">
+{% if error %}<div class="alert alert-danger"><strong>Error:</strong> {{ error }}</div>{% endif %}
+
+
+
+  <div class="container">
+    <br /> <br />
+    <h4>JSON Contents</h4>
+      {% for info in infos %}
+    <table id="" class="">
+      <p class="text-muted">Name: {{ info.name }}</p>
+      <p class="text-muted">Date: {{ info.date }}</p>
+      <p class="text-muted">Resolution: {{ info.res }}</p>
+      <p class="text-muted">File: {{ info.filetype }}</p>
+      <p class="text-muted">Data: {{ info.data }}</p>
+
+    </table>
+      {% else %}
+
+      {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}
