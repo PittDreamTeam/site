@@ -1,4 +1,4 @@
-import os, time, json
+import os, time, json, base64
 from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, abort, render_template, flash, jsonify
 from flask_restful import Resource, Api, reqparse
@@ -8,7 +8,7 @@ from werkzeug.datastructures import FileStorage
 
 
 
-UPLOAD_FOLDER = '/tmp/'
+
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -18,6 +18,7 @@ application.config.update(dict(
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 ))
 
+UPLOAD_FOLDER = os.path.join(application.root_path, 'static/upload/')
 db.init_app(application)
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -37,27 +38,27 @@ def default(username = "World"):
 def post_info():
 
     if request.method == 'POST':
-        # if request.headers['Content-Type'] == 'application/json':
-        #     json = request.json
-        #     info = Info(name=json['Name'], date=json['Date'], res=json['Resolution'], filetype=json['File'], data=json['Data'])
-        #     db.session.add(info)
-        #     db.session.commit()
-        files = dict(request.files)['test']
-        picture = files[0]
+
+        if not request.files:
+            return 'request.files is empty'
+
+        data = dict(request.files)['testfile']
+        picture = data[0]   # This is a filestorage object
+
+        print("Picture stream")
+        print(picture.stream.read())
         if picture:
-            filename = secure_filename(picture.filename)
-            picture.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+            filename = picture.filename
+            picture.save(os.path.join(application.config['UPLOAD_FOLDER'], filename), buffer_size=4096)
             picture.close()
+            print("Successfully saved post data")
             return redirect(url_for('post_info'))
         else:
             return 'Bad File'
 
     elif request.method == 'GET':
-        infos = Info.query.all()
-        if infos is not None:
-            return render_template("info.html", infos=infos)
-        else:
-            return render_template("info.html", infos=None)
+        return render_template("pic.html")
+
 
 
 

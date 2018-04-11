@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}<!DOCTYPE html>
+
+
+<div class="container">
+{% if error %}<div class="alert alert-danger"><strong>Error:</strong> {{ error }}</div>{% endif %}
+
+
+
+  <div class="container">
+    <br /> <br />
+    <h4>Pictures</h4>
+    <img src= {{ url_for('static', filename='upload/picture.jpg') }} class="img-thumbnail"/>
+
+  </div>
+
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

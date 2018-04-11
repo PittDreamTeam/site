@@ -10,4 +10,6 @@ MarkupSafe==1.0
 pytz==2018.3
 six==1.11.0
 SQLAlchemy==1.2.5
+SQLAlchemy-ImageAttach==1.1.0
+Wand==0.4.4
 Werkzeug==0.14.1
