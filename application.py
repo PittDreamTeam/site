@@ -20,7 +20,7 @@ application.config.update(dict(
 UPLOAD_FOLDER = os.path.join(application.root_path, 'static/upload/')
 db.init_app(application)
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-count = Value('i', 1)
+count = Value('i', 0)
 
 
 @application.cli.command('initdb')
@@ -40,39 +40,44 @@ def post_info():
 
     if request.method == 'POST':
 
-        # Check to make sure request.files is a thing
-        if not request.files:
-            return 'request.files is empty'
-        data = dict(request.files)['testfile']
-        picture = data[0]   # This is a filestorage object
-
-        if picture:
-            filename = picture.filename
-
-            if count.value==1:
-                with open(os.path.join(application.config['UPLOAD_FOLDER'], filename), "wb") as myfile:
-                    myfile.write(picture.stream.read())
-                    myfile.close()
-                    print("File closed - count 1")
-                    with count.get_lock():
-                        count.value+=1
-                    return 'Count is 1'
-            if count.value==2 or count.value==3:
-                with open(os.path.join(application.config['UPLOAD_FOLDER'], filename), "ab") as myfile:
-                    myfile.write(picture.stream.read())
-                    myfile.close()
-                if count.value==3:
-                    with count.get_lock():
-                        count.value = 1
-                    print("File closed - count 3")
-                    return 'Count is 3 - finished'
+        # Finished picture transaction comes in as application/json
+        if request.headers['Content-Type'] == 'application/json':
+            json = request.json
+            msg=json['Msg']
+            if(msg=='Done'):
                 with count.get_lock():
-                    count.value+=1
-                print("File closed - count 2")
-                return 'Count is 2'
+                    count.value=0
+                return "DONE"
 
         else:
-            return 'Bad file'
+            # Check to make sure request.files is a thing
+            if not request.files:
+                return 'request.files is empty'
+            data = dict(request.files)['testfile']
+            picture = data[0]   # This is a filestorage object
+
+            if picture:
+                filename = picture.filename
+
+                if count.value==0:
+                    with open(os.path.join(application.config['UPLOAD_FOLDER'], filename), "wb") as myfile:
+                        myfile.write(picture.stream.read())
+                        myfile.close()
+                        with count.get_lock():
+                            count.value+=1
+                    print("count - {}".format(count.value))
+                    return "OK"
+                elif count.value>0:
+                    with open(os.path.join(application.config['UPLOAD_FOLDER'], filename), "ab") as myfile:
+                        myfile.write(picture.stream.read())
+                        myfile.close()
+                    with count.get_lock():
+                        count.value+=1
+                    print("count - {}".format(count.value))
+                    return "OK"
+
+            else:
+                return 'Bad file'
 
     elif request.method == 'GET':
         return render_template("pic.html")

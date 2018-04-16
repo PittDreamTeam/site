@@ -4,10 +4,16 @@ Flask==0.12.2
 Flask-RESTful==0.3.6
 Flask-SQLAlchemy==2.3.2
 Flask-Testing==0.7.1
+future==0.16.0
+iso8601==0.1.12
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
+numpy==1.14.2
+Pillow==5.1.0
 pytz==2018.3
+PyYAML==3.12
+serial==0.0.59
 six==1.11.0
 SQLAlchemy==1.2.5
 SQLAlchemy-ImageAttach==1.1.0
