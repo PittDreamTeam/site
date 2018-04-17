@@ -4,6 +4,7 @@ import pickle
 import unittest
 import numpy
 import cleansing
+import tint
 from PIL import Image, ImageDraw
 from network import Network
 from getimage3 import Camera
@@ -83,7 +84,14 @@ def draw_x(image, block):
         ((x+1)*max_x, y*max_y) # bottom-right
     )
     draw.line(downward, fill=0xff0000)
-    return image
+
+    a = (y)*max_y
+    b = (y+1)*max_y
+    c = (x)*max_x
+    d = (x+1)*max_x
+
+    tinted_img = tint.tintRed(image, c, d, a, b)
+    return tinted_img
 
 def is_car(net, example):
     """Simply returns a bool indicating whether this

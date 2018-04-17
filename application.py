@@ -1,4 +1,8 @@
 import os, time, json, base64
+import run_one, tint
+
+
+from PIL import Image
 from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, abort, render_template, flash, jsonify
 from flask_restful import Resource, Api, reqparse
@@ -34,11 +38,24 @@ def initdb_command():
 def default(username = "World"):
     return render_template("index.html")
 
+@application.route('/reset', methods = ['POST'])
+def reset():
+    if request.method == 'POST':
+        # with count.get_lock():
+        #     count.value=0
+        # print("RESET")
+        im = Image.open("static/processed/picture.jpg")
+        colorful = tint.tintRed(im, 100, 200, 100, 200)
+        colorful.save("static/processed/picture.jpg")
+        return "OK"
+
 
 @application.route('/info', methods = ['GET', 'POST'])
 def post_info():
 
     if request.method == 'POST':
+        print("POST!\n\n\n")
+        print("content type headers - {}".format(request.headers['Content-Type']))
 
         # Finished picture transaction comes in as application/json
         if request.headers['Content-Type'] == 'application/json':
@@ -47,9 +64,13 @@ def post_info():
             if(msg=='Done'):
                 with count.get_lock():
                     count.value=0
+                img = run_one.get_im()
+                img.save("static/processed/picture.jpg")
                 return "DONE"
 
+
         else:
+            print("else")
             # Check to make sure request.files is a thing
             if not request.files:
                 return 'request.files is empty'
