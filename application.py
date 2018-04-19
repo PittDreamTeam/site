@@ -1,12 +1,13 @@
 import os, time, json, base64
 import run_one, tint
-
-
+from models import db, Entry
+import pickle
+from model import Model
 from PIL import Image
 from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, abort, render_template, flash, jsonify
+from flask import Markup
 from flask_restful import Resource, Api, reqparse
-from models import db, Info
 from werkzeug import secure_filename, ImmutableMultiDict
 from werkzeug.datastructures import FileStorage
 from multiprocessing import Value
@@ -26,6 +27,8 @@ db.init_app(application)
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 count = Value('i', 0)
 
+net = pickle.load(open('net.pickle', 'rb'))
+mod = Model(net)
 
 @application.cli.command('initdb')
 def initdb_command():
@@ -35,37 +38,61 @@ def initdb_command():
     print("Initialized DB")
 
 # print a nice greeting.
-def default(username = "World"):
-    return render_template("index.html")
+def default():
+    spaces = Entry.query.order_by(Entry.id.desc()).first()
+    open = 0
+    if spaces:
+        open = spaces.spots
+    return render_template("index.html", openspots=open)
+
 
 @application.route('/reset', methods = ['POST'])
 def reset():
     if request.method == 'POST':
-        # with count.get_lock():
-        #     count.value=0
-        # print("RESET")
-        im = Image.open("static/processed/picture.jpg")
-        colorful = tint.tintRed(im, 100, 200, 100, 200)
-        colorful.save("static/processed/picture.jpg")
+        with count.get_lock():
+            count.value=0
+        print("RESET")
         return "OK"
 
+@application.route('/calibrate', methods = ['GET'])
+def calibrate():
+    if request.method == 'GET':
+        img = Image.open('static/upload/picture.jpg')
+        lane_img = mod.highlight_lanes(img)
+        lane_img.save("static/processed/calibrate.jpg")
+        return render_template("calibrate.html")
 
 @application.route('/info', methods = ['GET', 'POST'])
 def post_info():
 
     if request.method == 'POST':
-        print("POST!\n\n\n")
-        print("content type headers - {}".format(request.headers['Content-Type']))
 
         # Finished picture transaction comes in as application/json
         if request.headers['Content-Type'] == 'application/json':
             json = request.json
             msg=json['Msg']
             if(msg=='Done'):
+
+                # Process picture
+                img = run_one.get_im()
+                park_img = mod.highlight_spaces(img)
+                lane_img = mod.highlight_lanes(park_img)
+                lane_img.save("static/processed/picture.jpg")
+
+                bottom_spaces = len(mod.find_spaces(img))
+                top_spaces = len(mod.find_spaces(img, top_lane=True))
+                spaces = bottom_spaces + top_spaces
+                print("\n\nspaces\n{}".format(spaces))
+
+                # Commit DB statistics
+                entry = Entry(spaces)
+                db.session.add(entry)
+                db.session.commit()
+
+                # Reset Transaction
                 with count.get_lock():
                     count.value=0
-                img = run_one.get_im()
-                img.save("static/processed/picture.jpg")
+
                 return "DONE"
 
 
@@ -101,10 +128,14 @@ def post_info():
                 return 'Bad file'
 
     elif request.method == 'GET':
-        return render_template("pic.html")
+        return render_template("index.html")
 
 
-
+@application.route("/chart")
+def chart():
+    labels = ["January","February","March","April","May","June","July","August"]
+    values = [10,9,8,7,6,4,7,8]
+    return render_template('chart.html', values=values, labels=labels)
 
 # add a rule for the index page.
 application.add_url_rule('/', 'default', (lambda: default() ))

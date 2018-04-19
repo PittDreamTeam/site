@@ -4,10 +4,10 @@ import pickle
 import unittest
 import numpy
 import cleansing
-import tint
 from PIL import Image, ImageDraw
 from network import Network
 from getimage3 import Camera
+import tint
 
 def lowres(pics):
     """Training images were captured at 640x480 res,
@@ -84,14 +84,7 @@ def draw_x(image, block):
         ((x+1)*max_x, y*max_y) # bottom-right
     )
     draw.line(downward, fill=0xff0000)
-
-    a = (y)*max_y
-    b = (y+1)*max_y
-    c = (x)*max_x
-    d = (x+1)*max_x
-
-    tinted_img = tint.tintRed(image, c, d, a, b)
-    return tinted_img
+    return image
 
 def is_car(net, example):
     """Simply returns a bool indicating whether this
@@ -112,9 +105,10 @@ def find_cars(net, image):
 def mark_cars(net, image):
     """Automatically breaks up the image,
     finds all the cars in it, and marks where they are."""
-    draw_grid(image)
-    for i in find_cars(net, image):
-        draw_x(image, i)
+    winners = find_cars(net, image)
+    draw_grid(image) # have to draw the grid after
+    for i in winners: # recognition, else every cell
+        draw_x(image, i) # will be considered "car".
     return image
 
 def organize_grid(grid):
@@ -182,9 +176,28 @@ def image2datagrid(image):
         lowres(cleansing.grid(image, (80, 60)))
     ))
 
+def highlight_cell(image, row, col, color):
+    """Highlights the cell given by `row` and `col` in `image`.
+    Param `color` is an RGBA integer, 0xAABBGGRR (I think).
+    Right now, I'm drawing an 'X', but I think that can change."""
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+    wstep, hstep = width//8, height//8
+    downward = (
+        (col*wstep, row*hstep),
+        ((col+1)*wstep, (row+1)*hstep)
+    )
+    upward = (
+        (col*wstep, (row+1)*hstep),
+        ((col+1)*wstep, row*hstep)
+    )
+    draw.line(downward, fill=color)
+    draw.line(upward, fill=color)
+    return image
+
 class Model:
     """A handy-dandy way to deal with our neural network and image processing."""
-    def __init__(self, net, parking_lanes=(3, 6)):
+    def __init__(self, net, parking_lanes=(2, 5)):
         """Contruct a model.
         Param `net` is a `network.Network`, and must be opened by some fasion.
         `parking_lanes` is a pair of ints which specify
@@ -199,14 +212,46 @@ class Model:
             image2datagrid(image)[lane],
             lambda x: not is_car(self.net, x)
         )
+    def highlight_lanes(self, image):
+        """Returns a copy of the given `image` with the parking lanes highlighted.
+        Does not modify the image."""
+        width, height = image.size
+        vertical_step = height//8
+        above_top = self.top_lane*vertical_step
+        below_top = (self.top_lane+1)*vertical_step
+        above_low = self.low_lane*vertical_step
+        below_low = (self.low_lane+1)*vertical_step
+        top_box = ((0, above_top), (width-1, below_top))
+        low_box = ((0, above_low), (width-1, below_low))
+        image = tint.tint(image, top_box[0], top_box[1], tint.Color.RED)
+        image = tint.tint(image, low_box[0], low_box[1], tint.Color.RED)
+        return image
+    def highlight_spaces(self, image):
+        """Highlights the available parking spaces for users.
+        Does not modify the original image."""
+        wstep, hstep = image.size[0]//8, image.size[1]//8
+        # Checking top lane
+        winners = self.find_spaces(image, top_lane=True)
+        row = self.top_lane
+        for col in winners:
+            top_left = (col*wstep, row*hstep)
+            bottom_right = ((col+2)*wstep, (row+1)*hstep)
+            image = tint.tint(image, top_left, bottom_right, tint.Color.GREEN)
+        # And now the bottom lane
+        winners = self.find_spaces(image, top_lane=False)
+        row = self.low_lane
+        for col in winners:
+            top_left = (col*wstep, row*hstep)
+            bottom_right = ((col+2)*wstep, (row+1)*hstep)
+            image = tint.tint(image, top_left, bottom_right, tint.Color.GREEN)
+        return image
 
 def main():
     """main"""
-    cam = Camera()
-    img = cam.take_photo()
-    # net = pickle.load(open('net.pickle', 'rb'))
-    # mark_cars(net, img).show()
-    img.resize((160, 120)).save('forparth.jpg')
+    net = pickle.load(open('net.pickle', 'rb'))
+    mod = Model(net)
+    img = Image.open('data/image11.jpg')
+    mod.highlight_spaces(img).show()
 
 if __name__ == '__main__':
-    unittest.main()
+    main()

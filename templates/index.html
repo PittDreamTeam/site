@@ -3,6 +3,20 @@
 {% block title %}Park Pal{% endblock %}
 {% block body %}<!DOCTYPE html>
 
+
+
+<script type='text/javascript'>
+  // For refreshing page every minute
+  $(document).ready(function() {
+  setInterval(function() {
+    cache_clear()
+  }, 20000);
+  });
+  function cache_clear() {
+    window.location.reload(true);
+  }
+</script>
+
 <div class="container">
 <h3> Welcome to Park Pal&#8482;! </h3>
 <br />
@@ -10,15 +24,17 @@
   <br />
   <div>
 
-    <h4> ( Please excuse our dust, we're renovating 🙂 ) </h4>
+    <!-- <h4> ( Please excuse our dust, we're renovating 🙂 ) </h4> -->
 
-    <form action="index" method="post">
-      <label>Spots:<input type="number" id="name" value="" /></label>
-      <button type="button" id="btn-post" onclick="do_ajax();">Click</button>
-      <div id="result"></div>
-    </form>
-
-  </div>
+    <div class="container">
+      <br /> <br />
+      <h4>Parking Status:</h4>
+      <img src= {{ url_for('static', filename='processed/picture.jpg') }} class="img-thumbnail"/>
+    </div>
+    <div class="container">
+      </br>
+      <h4>Open parking spots: {{ openspots }}</h4>
+    </div>
 </div>
 
 {% endblock %}
